@@ -3,7 +3,7 @@ declare(ticks=1);
 
 namespace PhpMw;
 
-abstract class BaskMasterWorker
+abstract class BaseMasterWorker
 {
     private $manager;
     private $master;

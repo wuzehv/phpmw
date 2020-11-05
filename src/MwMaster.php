@@ -8,7 +8,7 @@ class MwMaster
     private $mwObj;
     private $socket;
 
-    public function __construct(BaskMasterWorker $mwObj)
+    public function __construct(BaseMasterWorker $mwObj)
     {
         $this->mwObj = $mwObj;
     }
