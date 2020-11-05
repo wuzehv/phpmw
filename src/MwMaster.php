@@ -1,7 +1,7 @@
 <?php
 declare(ticks=1);
 
-namespace App\Tasks\Mw;
+namespace PhpMw;
 
 class MwMaster
 {
