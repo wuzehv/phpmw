@@ -18,7 +18,7 @@
     },
     "autoload": {
         "psr-4": {
-            "phpmw": "src"
+            "PhpMw\\": "src/"
         }
     }
 }
