@@ -120,17 +120,15 @@ class MwManager
 
     private function dealMaster()
     {
-        while (true) {
-            $res = MwConn::read($this->master);
-            if (!$res || $res['type'] === 'quit') {
-                MwConn::close($this->master);
-                $this->masterDone = true;
-                break;
-            }
+        $res = MwConn::read($this->master);
+        if (!$res || $res['type'] === 'quit') {
+            MwConn::close($this->master);
+            $this->masterDone = true;
+            return;
+        }
 
-            if ($res['type'] === 'job') {
-                $this->jobs[] = $res['data'];
-            }
+        if ($res['type'] === 'job') {
+            $this->jobs[] = $res['data'];
         }
     }
 
