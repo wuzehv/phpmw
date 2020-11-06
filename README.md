@@ -2,7 +2,7 @@
 * master worker模型
 * 参考iphp框架实现
 
-### usage
+### 使用
 1. 安装
 ```bash
 composer require wuzehv/phpmw
