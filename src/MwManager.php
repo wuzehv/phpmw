@@ -49,6 +49,7 @@ class MwManager
                 $this->socket
             ];
 
+            // 如果是任务非常多的情况，这里先不添加master句柄，等待worker处理，空闲出来之后再添加任务
             if ($this->master && !$this->jobs) {
                 $read[] = $this->master;
             }

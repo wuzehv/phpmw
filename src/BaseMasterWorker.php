@@ -31,6 +31,9 @@ abstract class BaseMasterWorker
         foreach ($this->pids as $pid) {
             $flag ? posix_kill($pid, SIGKILL) : exec("kill -KILL $pid");
         }
+
+        // 主进程也退出
+        exit;
     }
 
     public function setWorkerNum($num)
