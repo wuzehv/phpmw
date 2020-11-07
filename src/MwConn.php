@@ -13,7 +13,8 @@ class MwConn
         }
 
         if (!@socket_connect($socket, $ip, $port)) {
-            throw new \Exception(socket_strerror(socket_last_error()));
+            // 这里不做异常抛出；因为对于任务少，进程多的情况，会出现连接失败
+            return false;
         }
 
         return $socket;
