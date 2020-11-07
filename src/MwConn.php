@@ -8,8 +8,12 @@ class MwConn
     static function connect($ip, $port)
     {
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        if (!$socket) {
+            throw new \Exception(socket_strerror(socket_last_error()));
+        }
+
         if (!@socket_connect($socket, $ip, $port)) {
-            return false;
+            throw new \Exception(socket_strerror(socket_last_error()));
         }
 
         return $socket;
@@ -30,7 +34,7 @@ class MwConn
         ];
 
         // 注意换行是必须的，否则会出现问题
-        !@socket_write($socket, json_encode($info) . "\n");
+        return !@socket_write($socket, json_encode($info) . "\n");
     }
 
     static function read($socket)
