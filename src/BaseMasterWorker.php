@@ -62,11 +62,11 @@ abstract class BaseMasterWorker
         while (pcntl_wait($status) > 0);
     }
 
-    public function startMaster()
+    private function startMaster()
     {
         $pid = pcntl_fork();
         if ($pid < 0) {
-
+            exit("fork master fail");
         } elseif ($pid > 0) {
             $this->pids[] = $pid;
         } else {
@@ -75,11 +75,11 @@ abstract class BaseMasterWorker
         }
     }
 
-    public function startWorker()
+    private function startWorker()
     {
         $pid = pcntl_fork();
         if ($pid < 0) {
-
+            exit("fork worker fail");
         } elseif ($pid > 0) {
             $this->pids[] = $pid;
         } else {
