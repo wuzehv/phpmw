@@ -35,7 +35,7 @@ class MwConn
         ];
 
         // 注意换行是必须的，否则会出现问题
-        return !@socket_write($socket, json_encode($info) . "\n");
+        return @socket_write($socket, json_encode($info) . "\n");
     }
 
     static function read($socket)
