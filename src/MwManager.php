@@ -146,8 +146,11 @@ class MwManager
     {
         foreach ($this->workers as $k => $item) {
             if ($socket == $item['socket']) {
-                // 丢弃结果
-                MwConn::read($socket);
+                // 丢弃结果，并且如果读取失败，可能是worker已经退出，删除套接字
+                if (!MwConn::read($socket)) {
+                    unset($this->workers[$k]);
+                    break;
+                }
 
                 // 设置进程结束标识
                 $this->workers[$k]['working'] = false;
