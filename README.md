@@ -44,7 +44,7 @@ $obj->run();
 
 ### 实现原理
 
-进程间通讯采用socket
+进程间通信采用socket
 
 1. 启动主进程，作为manager，监听随机端口
 2. 启动master进程，连接manager
@@ -87,10 +87,10 @@ pstree -p pid
 
 #### job少，worker进程多
 
-执行过程中，master进程会迅速执行完毕，`socket_select`获取到退出，当任务分发完成后，manager会调用`quitAll`方法，多于的worker进程会结束，执行中的worker会继续执行，直至完成退出
+执行过程中，master进程会迅速执行完毕并发送退出信息，`socket_select`获取到master退出信息，在所有任务分发完成后，manager从select的死循环break，之后会调用`quitAll`方法，多于的worker进程会结束，执行中的worker会继续执行，直至完成退出
 
 #### job多，worker进程少
 
-如果job生成非常快，master会迅速写入大量job到`socket`，worker会慢慢进行处理，此时master进程和worker进程会同时存在
+job生成时，master会写入大量job到`socket`，worker会慢慢进行处理，此时master进程和worker进程会同时存在
 
 在worker进程都在工作的时候，`socket_select`会暂时不监听master进程套接字，直至有worker进程空闲，从而实现进程的分发
