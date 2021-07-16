@@ -31,12 +31,13 @@ class MwWorker
 
             // 捕获异常，避免worker意外退出
             try {
+                // 不处理返回值
                 $this->mwObj->worker($data['data']);
             } catch (\Exception $e) {
                 // worker catch exception
             }
 
-            // todo 不处理返回值，触发select
+            // 触发select
             MwConn::send($this->socket, 'result', 'done');
         }
     }

@@ -27,7 +27,7 @@ class MwMaster
         $this->mwObj->master();
 
         // 主动发出退出消息
-        MwConn::send($this->socket, 'quit', '');
+        MwConn::send($this->socket, 'quit', 'master');
     }
 
     public function addJob($job)

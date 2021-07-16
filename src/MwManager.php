@@ -47,7 +47,7 @@ class MwManager
         $this->socket = $socket;
     }
 
-    public function run()
+    public function run($workerNum)
     {
         while (true) {
             // 分发job给worker进程
@@ -85,7 +85,7 @@ class MwManager
                 }
             }
 
-            if ($this->masterDone && !$this->jobs) {
+            if ($this->masterDone && !$this->jobs && count($this->workers) == $workerNum) {
                 break;
             }
         }
@@ -115,15 +115,16 @@ class MwManager
         $data = MwConn::read($socket);
 
         if ($data['type'] === 'role') {
-            if ($data['data'] === 'master') {
-                $this->master = $socket;
-            }
-
-            if ($data['data'] === 'worker') {
-                $this->workers[] = [
-                    'working' => false,
-                    'socket' => $socket,
-                ];
+            switch ($data['data']) {
+                case 'master':
+                    $this->master = $socket;
+                    break;
+                case 'worker':
+                    $this->workers[] = [
+                        'working' => false,
+                        'socket' => $socket,
+                    ];
+                    break;
             }
         }
     }
@@ -146,9 +147,8 @@ class MwManager
     {
         foreach ($this->workers as $k => $item) {
             if ($socket == $item['socket']) {
-                // 丢弃结果，并且如果读取失败，可能是worker已经退出，删除套接字
-                if (!MwConn::read($socket)) {
-                    unset($this->workers[$k]);
+                // 丢弃结果，并且如果读取失败，可能是worker已经因为致命错误已经退出
+                if (MwConn::read($socket) === false) {
                     break;
                 }
 
@@ -162,7 +162,7 @@ class MwManager
     private function quitAll()
     {
         foreach ($this->workers as $item) {
-            MwConn::send($item['socket'], 'quit', '');
+            MwConn::send($item['socket'], 'quit', 'worker');
         }
 
         MwConn::close($this->socket);

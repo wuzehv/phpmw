@@ -52,11 +52,12 @@ abstract class BaseMasterWorker
 
         $this->startMaster();
 
-        while ($this->workerNum-- > 0) {
+        $workerNum = $this->workerNum;
+        while ($workerNum-- > 0) {
             $this->startWorker();
         }
 
-        $this->manager->run();
+        $this->manager->run($this->workerNum);
 
         // 等待所有子进程退出
         while (pcntl_wait($status) > 0);
