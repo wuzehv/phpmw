@@ -28,9 +28,18 @@ class MwManager
         $this->ip = '127.0.0.1';
 
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        if (!$socket) {
+            throw new \Exception(socket_strerror(socket_last_error()));
+        }
+
         // 监听随机端口，方便多个业务同时运行
-        socket_bind($socket, $this->ip);
-        socket_listen($socket);
+        if (!@socket_bind($socket, $this->ip)) {
+            throw new \Exception(socket_strerror(socket_last_error()));
+        }
+
+        if (!@socket_listen($socket)) {
+            throw new \Exception(socket_strerror(socket_last_error()));
+        }
 
         socket_getsockname($socket, $addr, $port);
 
@@ -137,8 +146,11 @@ class MwManager
     {
         foreach ($this->workers as $k => $item) {
             if ($socket == $item['socket']) {
-                // 丢弃结果
-                MwConn::read($socket);
+                // 丢弃结果，并且如果读取失败，可能是worker已经退出，删除套接字
+                if (!MwConn::read($socket)) {
+                    unset($this->workers[$k]);
+                    break;
+                }
 
                 // 设置进程结束标识
                 $this->workers[$k]['working'] = false;
