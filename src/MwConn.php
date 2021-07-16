@@ -35,12 +35,20 @@ class MwConn
 
     static function read($socket)
     {
-        $buf = @socket_read($socket, 102400, PHP_NORMAL_READ);
-        if ($buf === false) {
-            return false;
+        $res = '';
+        while (true) {
+            $buf = @socket_read($socket, 1024 * 10, PHP_NORMAL_READ);
+            if ($buf === false) {
+                return false;
+            }
+
+            $res .= $buf;
+            if (strpos($buf, "\n") !== false) {
+                break;
+            }
         }
 
-        return json_decode($buf, true);
+        return json_decode(substr($res, 0, -1), true);
     }
 
     static function close(&$socket)
