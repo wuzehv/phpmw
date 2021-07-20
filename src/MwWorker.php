@@ -16,7 +16,11 @@ class MwWorker
     private function init($ip, $port)
     {
         $this->socket = MwConn::connect($ip, $port);
-        MwConn::send($this->socket, 'role', 'worker');
+        MwConn::send($this->socket, MwConst::TYPE_ROLE, MwConst::ROLE_WORKER);
+        $t = MwConn::read($this->socket);
+        if (!$t || $t['type'] != MwConst::TYPE_CONN) {
+            throw new \Exception("worker connect manager error");
+        }
     }
 
     public function run($manager)
@@ -25,7 +29,7 @@ class MwWorker
 
         while (true) {
             $data = MwConn::read($this->socket);
-            if (!$data || $data['type'] === 'quit') {
+            if (!$data || $data['type'] === MwConst::TYPE_QUIT) {
                 break;
             }
 
@@ -38,7 +42,7 @@ class MwWorker
             }
 
             // 触发select
-            MwConn::send($this->socket, 'result', 'done');
+            MwConn::send($this->socket, MwConst::TYPE_DONE);
         }
     }
 }

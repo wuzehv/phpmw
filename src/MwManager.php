@@ -25,7 +25,7 @@ class MwManager
 
     public function init()
     {
-        $this->ip = '127.0.0.1';
+        $this->ip = MwConst::IP;
 
         $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         if (!$socket) {
@@ -103,7 +103,7 @@ class MwManager
             if (!$worker['working']) {
                 $job = array_shift($this->jobs);
                 $this->workers[$k]['working'] = true;
-                MwConn::send($worker['socket'], 'job', $job);
+                MwConn::send($worker['socket'], MwConst::TYPE_JOB, $job);
             }
         }
     }
@@ -114,31 +114,33 @@ class MwManager
 
         $data = MwConn::read($socket);
 
-        if ($data['type'] === 'role') {
+        if ($data['type'] === MwConst::TYPE_ROLE) {
             switch ($data['data']) {
-                case 'master':
+                case MwConst::ROLE_MASTER:
                     $this->master = $socket;
                     break;
-                case 'worker':
+                case MwConst::ROLE_WORKER:
                     $this->workers[] = [
                         'working' => false,
                         'socket' => $socket,
                     ];
                     break;
             }
+
+            MwConn::send($socket, MwConst::TYPE_CONN);
         }
     }
 
     private function dealMaster()
     {
         $res = MwConn::read($this->master);
-        if (!$res || $res['type'] === 'quit') {
+        if (!$res || $res['type'] === MwConst::TYPE_QUIT) {
             MwConn::close($this->master);
             $this->masterDone = true;
             return;
         }
 
-        if ($res['type'] === 'job') {
+        if ($res['type'] === MwConst::TYPE_JOB) {
             $this->jobs[] = $res['data'];
         }
     }
@@ -162,7 +164,7 @@ class MwManager
     private function quitAll()
     {
         foreach ($this->workers as $item) {
-            MwConn::send($item['socket'], 'quit', 'worker');
+            MwConn::send($item['socket'], MwConst::TYPE_QUIT, MwConst::ROLE_WORKER);
         }
 
         MwConn::close($this->socket);

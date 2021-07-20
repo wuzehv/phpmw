@@ -16,7 +16,11 @@ class MwMaster
     private function init($ip, $port)
     {
         $this->socket = MwConn::connect($ip, $port);
-        MwConn::send($this->socket, 'role', 'master');
+        MwConn::send($this->socket, MwConst::TYPE_ROLE, MwConst::ROLE_MASTER);
+        $t = MwConn::read($this->socket);
+        if (!$t || $t['type'] != MwConst::TYPE_CONN) {
+            throw new \Exception("master connect manager error");
+        }
     }
 
     public function run($manager)
@@ -27,11 +31,11 @@ class MwMaster
         $this->mwObj->master();
 
         // 主动发出退出消息
-        MwConn::send($this->socket, 'quit', 'master');
+        MwConn::send($this->socket, MwConst::TYPE_QUIT, MwConst::ROLE_MASTER);
     }
 
     public function addJob($job)
     {
-        MwConn::send($this->socket, 'job', $job);
+        MwConn::send($this->socket, MwConst::TYPE_JOB, $job);
     }
 }
