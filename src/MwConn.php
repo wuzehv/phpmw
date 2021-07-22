@@ -33,8 +33,25 @@ class MwConn
             'data' => $data,
         ];
 
-        // 注意换行是必须的，否则会出现问题
-        return @socket_write($socket, json_encode($info) . "\n");
+        $str = json_encode($info) . "\n";
+        $all = $len = strlen($str);
+
+        while (true) {
+            $sent = @socket_write($socket, $str, $len);
+            if ($sent === false) {
+                return false;
+            }
+
+            if ($sent < $len) {
+                $str = substr($str, $sent);
+                $len -= $sent;
+                continue;
+            }
+
+            break;
+        }
+
+        return $all;
     }
 
     static function read($socket)
