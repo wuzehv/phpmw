@@ -37,7 +37,7 @@ class MwWorker
             try {
                 // 不处理返回值
                 $this->mwObj->worker($data['data']);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // worker catch exception
             }
 
